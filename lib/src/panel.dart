@@ -444,23 +444,33 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
 
     if (widget.panel != null) {
       return GestureDetector(
-        onVerticalDragUpdate: (DragUpdateDetails dets) =>
-            _onGestureSlide(dets.delta.dy),
-        onVerticalDragEnd: (DragEndDetails dets) =>
-            _onGestureEnd(dets.velocity),
+        onVerticalDragUpdate: (DragUpdateDetails dets) {
+          if (!mounted) return;
+          _onGestureSlide(dets.delta.dy);
+        },
+        onVerticalDragEnd: (DragEndDetails dets) {
+          if (!mounted) return;
+          _onGestureEnd(dets.velocity);
+        },
         child: child,
       );
     }
 
     return Listener(
-      onPointerDown: (PointerDownEvent p) =>
-          _vt.addPosition(p.timeStamp, p.position),
+      onPointerDown: (PointerDownEvent p) {
+        if (!mounted) return;
+        _vt.addPosition(p.timeStamp, p.position);
+      },
       onPointerMove: (PointerMoveEvent p) {
+        if (!mounted) return;
         _vt.addPosition(p.timeStamp,
             p.position); // add current position for velocity tracking
         _onGestureSlide(p.delta.dy);
       },
-      onPointerUp: (PointerUpEvent p) => _onGestureEnd(_vt.getVelocity()),
+      onPointerUp: (PointerUpEvent p) {
+        if (!mounted) return;
+        _onGestureEnd(_vt.getVelocity());
+      },
       child: child,
     );
   }
